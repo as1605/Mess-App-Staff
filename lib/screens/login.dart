@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 TextFormField(
                     decoration:
-                        const InputDecoration(hintText: 'Enter staff kerberos'),
+                        const InputDecoration(hintText: 'Enter staff username'),
                     onSaved: (String? value) => kerberos = value ?? ""),
                 TextFormField(
                     obscureText: true,

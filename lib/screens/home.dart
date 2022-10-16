@@ -11,19 +11,21 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Home")),
+      appBar: AppBar(title: const Text("Home"), actions: [
+        ElevatedButton(
+            onPressed: () => api.logout().then((_) =>
+                as1605.navReplace(context, (_) => LaunchScreen(api: api))),
+            child: const Text('Logout'))
+      ]),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ElevatedButton(
-              onPressed: () => api.logout().then((_) =>
-                  as1605.navReplace(context, (_) => LaunchScreen(api: api))),
-              child: const Text('Logout')),
-          ElevatedButton(
-              onPressed: () =>
-                  as1605.navPush(context, (_) => ScanScreen(api: api)),
-              child: const Text('Scan'))
+          Center(
+              child: ElevatedButton(
+                  onPressed: () =>
+                      as1605.navPush(context, (_) => ScanScreen(api: api)),
+                  child: const Text('Scan')))
         ],
       ),
     );

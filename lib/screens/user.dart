@@ -54,21 +54,34 @@ class _UserScreenState extends State<UserScreen> {
         appBar: AppBar(title: const Text("User Details")),
         body: (msg == null)
             ? ListView(
+                padding: const EdgeInsets.all(15),
                 children: [
                       (user == null)
                           ? const Center(
                               child: CircularProgressIndicator.adaptive())
                           : UserCard(user: user!),
-                      Text(activeMeals == []
-                          ? 'No Active Meals'
-                          : 'Active Meals')
+                      const SizedBox(height: 20),
+                      Center(
+                        child: Text(activeMeals == []
+                            ? 'No Active Meals'
+                            : 'Active Meals'),
+                      ),
+                      const SizedBox(height: 20),
                     ] +
                     activeMeals
-                        .map((e) => MealCard(mealToken: e, api: widget.api))
+                        .map((e) => MealCard(
+                            mealToken: e, api: widget.api, active: true))
                         .toList() +
-                    [Text(allMeals == [] ? 'No Meals' : 'All Meals')] +
+                    [
+                      const SizedBox(height: 20),
+                      Center(
+                          child:
+                              Text(allMeals == [] ? 'No Meals' : 'All Meals')),
+                      const SizedBox(height: 20),
+                    ] +
                     allMeals
-                        .map((e) => MealCard(mealToken: e, api: widget.api))
+                        .map((e) => MealCard(
+                            mealToken: e, api: widget.api, active: false))
                         .toList())
             : Text(msg!));
   }
@@ -95,45 +108,60 @@ class UserCard extends StatelessWidget {
 class MealCard extends StatelessWidget {
   final API api;
   final Map<String, dynamic> mealToken;
-  const MealCard({super.key, required this.mealToken, required this.api});
+  final bool active;
+  const MealCard(
+      {super.key,
+      required this.mealToken,
+      required this.api,
+      required this.active});
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Text(mealToken['status']),
-      title: Text(mealToken['meal_id']['name']),
-      subtitle: Text(
-          "${as1605.date(mealToken['meal_id']['start_time'])} - ${as1605.date(mealToken['meal_id']['end_time'])}"),
-      trailing: Text((mealToken['enter_time'] == null)
-          ? ''
-          : 'Entered: ${as1605.date(mealToken['enter_time'])}'),
-      onTap: () => as1605.popup(context, title: "Meal", actions: [
-        ElevatedButton(
-            onPressed: (mealToken['status'] == 'USED')
-                ? null
-                : () {
-                    final result = api.useMealToken(mealToken['_id']);
-                    if (result == false) {
-                      as1605.popup(context,
-                          title: "DO NOT ALLOW",
-                          content: const Icon(Icons.close, color: Colors.red));
-                    } else {
-                      as1605.popup(context,
-                          title: "ALLOW",
-                          content: const Icon(Icons.check, color: Colors.green),
-                          actions: [
-                            ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Ok'))
-                          ]);
-                    }
-                  },
-            child: const Text('Scratch'))
-      ]),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: ListTile(
+        tileColor: (mealToken['status'] == 'USED')
+            ? Colors.red.shade100
+            : Colors.green.shade100,
+        leading: Text(mealToken['status']),
+        title: Text(mealToken['meal_id']['name']),
+        subtitle: Text(
+            "${as1605.date(mealToken['meal_id']['start_time'])} - ${as1605.date(mealToken['meal_id']['end_time'])}"),
+        trailing: Text((mealToken['enter_time'] == null)
+            ? ''
+            : 'Entered: ${as1605.date(mealToken['enter_time'])}'),
+        onTap: active
+            ? () => as1605.popup(context, title: "Meal", actions: [
+                  ElevatedButton(
+                      onPressed: (mealToken['status'] == 'USED')
+                          ? null
+                          : () {
+                              final result = api.useMealToken(mealToken['_id']);
+                              if (result == false) {
+                                as1605.popup(context,
+                                    title: "DO NOT ALLOW",
+                                    content: const Icon(Icons.close,
+                                        color: Colors.red));
+                              } else {
+                                as1605.popup(context,
+                                    title: "ALLOW",
+                                    content: const Icon(Icons.check,
+                                        color: Colors.green, size: 20),
+                                    actions: [
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Ok'))
+                                    ]);
+                              }
+                            },
+                      child: const Text('Scratch'))
+                ])
+            : null,
+      ),
     );
   }
 }
