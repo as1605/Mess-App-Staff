@@ -1,15 +1,20 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:mess_app_staff/screens/launch.dart';
 import 'package:mess_app_staff/utils/api.dart';
+import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
-  final api = API();
+  WidgetsFlutterBinding.ensureInitialized();
+  Directory cookieDir = await getTemporaryDirectory();
+  final api = API(cookieDir);
   runApp(MyApp(api: api));
 }
 
 class MyApp extends StatelessWidget {
-  final API? api;
-  const MyApp({super.key, this.api});
+  final API api;
+  const MyApp({super.key, required this.api});
 
   @override
   Widget build(BuildContext context) {

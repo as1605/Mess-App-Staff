@@ -1,8 +1,9 @@
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:dio_logger/dio_logger.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:mess_app_staff/utils/constants.dart';
 
@@ -10,9 +11,11 @@ class API {
   final Dio dio = Dio();
 
   static const baseUrl = STRINGS.serverUrl;
+  late CookieJar cookieJar;
 
-  API() {
-    dio.interceptors.add(CookieManager(PersistCookieJar()));
+  API(Directory dir) {
+    cookieJar = PersistCookieJar(storage: FileStorage(dir.path));
+    dio.interceptors.add(CookieManager(cookieJar));
     dio.interceptors.add(RetryInterceptor(
       dio: dio,
       logPrint: print, // specify log function (optional)
@@ -23,6 +26,7 @@ class API {
         Duration(seconds: 3), // wait 3 sec before third retry
       ],
     ));
+    dio.interceptors.add(dioLoggerInterceptor);
   }
 
   Future<bool> isAuthenticated() async {
@@ -36,7 +40,7 @@ class API {
       'password': password,
     });
     if (response.statusCode == 201) {
-      return jsonDecode(response.data);
+      return response.data;
       /*
       {
         "id": String,
@@ -54,13 +58,13 @@ class API {
 
   Future<void> logout() async {
     final response = await dio.post('$baseUrl/auth/logout');
-    await PersistCookieJar().delete(Uri.parse(baseUrl));
+    await cookieJar.delete(Uri.parse(baseUrl));
   }
 
   Future<dynamic> myProfile() async {
     final response = await dio.get('$baseUrl/auth/myProfile');
     if (response.statusCode == 200) {
-      return jsonDecode(response.data);
+      return response.data;
       /*
       {
         "_id": String,
@@ -81,7 +85,7 @@ class API {
     final response = await dio
         .get("$baseUrl/staff/verifyToken?kerberos=$kerberos&token=$token");
     if (response.statusCode == 200) {
-      return jsonDecode(response.data);
+      return response.data;
       /*
       {
         "token": {
@@ -121,7 +125,7 @@ class API {
     final response =
         await dio.get("$baseUrl/staff/verifyWithoutToken?kerberos=$kerberos");
     if (response.statusCode == 200) {
-      return jsonDecode(response.data);
+      return response.data;
     } else {
       return false;
     }
@@ -131,7 +135,7 @@ class API {
     final response =
         await dio.get("$baseUrl/staff/getMealTokens?kerberos=$kerberos");
     if (response.statusCode == 200) {
-      return jsonDecode(response.data);
+      return response.data;
       /*
         [
           {
@@ -159,11 +163,11 @@ class API {
   }
 
   Future<dynamic> useMealToken(String tokenId) async {
-    final response = await dio.post('$baseUrl/auth/useMealToken', data: {
+    final response = await dio.post('$baseUrl/staff/useMealToken', data: {
       'token_id': tokenId,
     });
     if (response.statusCode == 201) {
-      return jsonDecode(response.data);
+      return response.data;
       /*
         {
           "_id": String,
