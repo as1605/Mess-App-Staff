@@ -3,6 +3,7 @@ import 'package:mess_app_staff/screens/launch.dart';
 import 'package:mess_app_staff/screens/scan.dart';
 import 'package:mess_app_staff/utils/api.dart';
 import 'package:mess_app_staff/utils/as1605.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatelessWidget {
   final API api;
@@ -21,11 +22,25 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Expanded(
+            child: Center(
+                child: ElevatedButton(
+                    onPressed: () =>
+                        as1605.navPush(context, (_) => ScanScreen(api: api)),
+                    child: const Text('Scan'))),
+          ),
           Center(
-              child: ElevatedButton(
-                  onPressed: () =>
-                      as1605.navPush(context, (_) => ScanScreen(api: api)),
-                  child: const Text('Scan')))
+              child: TextButton(
+                  onPressed: () => launchUrl(
+                      Uri.parse('https://github.com/as1605'),
+                      mode: LaunchMode.externalApplication),
+                  child: RichText(
+                      text: TextSpan(children: const [
+                    TextSpan(text: "Developed by Aditya Singh "),
+                    TextSpan(
+                        text: "(as1605)",
+                        style: TextStyle(fontWeight: FontWeight.bold))
+                  ], style: TextStyle(color: Colors.grey.shade500)))))
         ],
       ),
     );
