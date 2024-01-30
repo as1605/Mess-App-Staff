@@ -47,17 +47,22 @@ class API {
         "kerberos": String,
         "isManager": bool,
         "name": String,
-        "role": String
+        "role": String,
+        "messNames": String[],
       }
       */
     } else {
-      await PersistCookieJar().delete(Uri.parse(baseUrl));
+      await logout();
       return false;
     }
   }
 
   Future<void> logout() async {
-    final response = await dio.post('$baseUrl/auth/logout');
+    try {
+      final response = await dio.post('$baseUrl/auth/logout');
+    } catch (e) {
+      print(e);
+    }
     await cookieJar.delete(Uri.parse(baseUrl));
   }
 
@@ -76,7 +81,7 @@ class API {
       }
       */
     } else {
-      await PersistCookieJar().delete(Uri.parse(baseUrl));
+      await logout();
       return false;
     }
   }
