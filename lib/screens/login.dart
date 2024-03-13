@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
         appBar: AppBar(title: const Text('Login')),
         body: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(30.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -37,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration:
                         const InputDecoration(hintText: 'Enter staff password'),
                     onSaved: (String? value) => password = value ?? ""),
+                const SizedBox(height: 30),
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
@@ -51,7 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               content: const Text(
                                   "Please try again, check your network connection or contact the developers")));
                     },
-                    child: const Text('Submit'),
+                    child: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text('Submit', style: TextStyle(fontSize: 20)),
+                    ),
                   ),
                 ),
               ],

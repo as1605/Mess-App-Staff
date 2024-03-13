@@ -24,13 +24,13 @@ class _ScanScreenState extends State<ScanScreen> {
         appBar: AppBar(title: const Text("QR Scanner")),
         floatingActionButton: FloatingActionButton(
             onPressed: () => cameraController.switchCamera(),
-            child: const Icon(Icons.cameraswitch, color: Colors.white)),
+            child:
+                const Icon(Icons.cameraswitch, color: Colors.white, size: 30)),
         body: MobileScanner(
             allowDuplicates: false,
             controller: cameraController,
             onDetect: (barcode, args) {
               final String code = barcode.rawValue ?? "";
-              print('Barcode found! $code');
               final data = jsonDecode(code);
               if ((data == null) ||
                   !data.containsKey('kerberos') ||

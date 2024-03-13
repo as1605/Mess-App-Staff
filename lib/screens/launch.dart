@@ -12,7 +12,6 @@ class LaunchScreen extends StatelessWidget {
     return FutureBuilder<dynamic>(
         future: api.myProfile(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          print({snapshot});
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               return HomeScreen(api: api);

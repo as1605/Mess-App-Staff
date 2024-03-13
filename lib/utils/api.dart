@@ -29,11 +29,6 @@ class API {
     dio.interceptors.add(dioLoggerInterceptor);
   }
 
-  Future<bool> isAuthenticated() async {
-    final cookies = await PersistCookieJar().loadForRequest(Uri.parse(baseUrl));
-    return cookies.isNotEmpty;
-  }
-
   Future<dynamic> login(String kerberos, String password) async {
     final response = await dio.post('$baseUrl/auth/login', data: {
       'kerberos': kerberos,
@@ -59,10 +54,9 @@ class API {
 
   Future<void> logout() async {
     try {
-      final response = await dio.post('$baseUrl/auth/logout');
-    } catch (e) {
-      print(e);
-    }
+      await dio.post('$baseUrl/auth/logout');
+      // ignore: empty_catches
+    } catch (e) {}
     await cookieJar.delete(Uri.parse(baseUrl));
   }
 
@@ -90,14 +84,6 @@ class API {
     final response = await dio
         .get("$baseUrl/staff/verifyToken?kerberos=$kerberos&token=$token");
     if (response.statusCode == 200) {
-      if (response.data.containsKey('token')) {
-        final photo = response.data['token']['user_id']['photo'];
-        if (photo is String) {
-          final img = photo.split("/").last;
-          final url = "$baseUrl/staff/photo/$img";
-          print(url);
-        }
-      }
       final cookies = await cookieJar.loadForRequest(Uri.parse(baseUrl));
       response.data['token']['user_id']['cookie'] = cookies[0].value;
 
@@ -132,16 +118,6 @@ class API {
         ]
       }
       */
-    } else {
-      return false;
-    }
-  }
-
-  Future<dynamic> verifyWithoutToken(String kerberos) async {
-    final response =
-        await dio.get("$baseUrl/staff/verifyWithoutToken?kerberos=$kerberos");
-    if (response.statusCode == 200) {
-      return response.data;
     } else {
       return false;
     }
@@ -206,8 +182,6 @@ class API {
           'file':
               await MultipartFile.fromFile(file, filename: file.split("/").last)
         }));
-    print("REEEEEEEEEEE");
-    print(response.toString());
     if (response.statusCode == 201) {
       return true;
     } else {

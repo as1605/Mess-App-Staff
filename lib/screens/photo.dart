@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:camerawesome/camerawesome_plugin.dart';
@@ -35,8 +34,6 @@ class _PhotoScreenState extends State<PhotoScreen> {
     final decodedImage = img.decodeImage(originalImageData);
     final resizedImage = img.copyResize(decodedImage!, width: 480, height: 480);
 
-    print(resizedImage.width);
-
     // Compress the image to JPEG with 85% quality (adjust as necessary)
     final compressedImageData = img.encodeJpg(resizedImage, quality: 80);
 
@@ -57,18 +54,34 @@ class _PhotoScreenState extends State<PhotoScreen> {
           previewFit: CameraPreviewFit.contain,
           saveConfig: SaveConfig.photo(pathBuilder: () => _path()),
           onMediaTap: (mediaCapture) async {
-            print("MEDIACAPTURE");
-            print(mediaCapture.filePath);
+            as1605.popup(context,
+                title: "Uploading Image",
+                content: const SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: Center(child: CircularProgressIndicator())));
             final compressedImage =
                 await compressImage(File(mediaCapture.filePath));
-            print(compressedImage.path);
             final response = await widget.api
                 .uploadPhoto(widget.kerberos, compressedImage.path);
             File(compressedImage.path).delete();
             if (response == true) {
               // ignore: use_build_context_synchronously
               Navigator.of(context).pop();
+              // ignore: use_build_context_synchronously
+              Navigator.of(context).pop();
+              // ignore: use_build_context_synchronously
+              Navigator.of(context).pop();
+              // ignore: use_build_context_synchronously
+              as1605.navPush(
+                  context,
+                  (_) => UserScreen(
+                      api: widget.api,
+                      kerberos: widget.kerberos,
+                      token: widget.token));
             } else {
+              // ignore: use_build_context_synchronously
+              Navigator.of(context).pop();
               // ignore: use_build_context_synchronously
               as1605.popup(context,
                   title: "Error in Uploading Photo",

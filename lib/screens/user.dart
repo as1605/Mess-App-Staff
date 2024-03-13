@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mess_app_staff/screens/photo.dart';
 import 'package:mess_app_staff/utils/api.dart';
@@ -27,12 +28,8 @@ class _UserScreenState extends State<UserScreen> {
   String? msg;
 
   Future<void> getDetails() async {
-    if (widget.token == null) {
-      userProfile = await widget.api.verifyWithoutToken(widget.kerberos);
-    } else {
-      userProfile =
-          await widget.api.verifyToken(widget.kerberos, widget.token!);
-    }
+    userProfile = await widget.api.verifyToken(widget.kerberos, widget.token);
+
     if (userProfile.containsKey('token')) {
       setState(() => user = userProfile['token']['user_id']);
       setState(() => activeMeals = userProfile['active_meals']);
@@ -77,11 +74,12 @@ class _UserScreenState extends State<UserScreen> {
                           : UserCard(user: user!),
                       const SizedBox(height: 20),
                       Center(
-                        child: Text(activeMeals == []
-                            ? 'No Active Meals'
-                            : 'Active Meals'),
+                        child: Text(
+                            activeMeals == []
+                                ? 'No Active Meals'
+                                : 'Active Meals',
+                            style: const TextStyle(fontSize: 25)),
                       ),
-                      const SizedBox(height: 20),
                     ] +
                     activeMeals
                         .map((e) => MealCard(
@@ -90,9 +88,8 @@ class _UserScreenState extends State<UserScreen> {
                     [
                       const SizedBox(height: 20),
                       Center(
-                          child:
-                              Text(allMeals == [] ? 'No Meals' : 'All Meals')),
-                      const SizedBox(height: 20),
+                          child: Text(allMeals == [] ? 'No Meals' : 'All Meals',
+                              style: const TextStyle(fontSize: 25))),
                     ] +
                     allMeals
                         .map((e) => MealCard(
@@ -108,16 +105,32 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      user['photo'] == null
-          ? const Icon(Icons.person, size: 200)
-          : Image(
-              image: NetworkImage(
-                  "${STRINGS.serverUrl}/staff/photo/${user['photo'].split('/').last}",
-                  headers: {'Cookie': 'connect.sid=${user['cookie']}'}),
-              width: 200,
-              height: 200,
-            ),
+    return Card(
+        child: Column(children: [
+      const SizedBox(height: 20),
+      Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+          child: user['photo'] == null
+              ? const Icon(Icons.person, size: 200)
+              : CachedNetworkImage(
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                            image: imageProvider, fit: BoxFit.contain)),
+                  ),
+                  imageUrl:
+                      "${STRINGS.serverUrl}/staff/photo/${user['photo'].split('/').last}",
+                  httpHeaders: {'Cookie': 'connect.sid=${user['cookie']}'},
+                  progressIndicatorBuilder: (context, url, downloadProgress) =>
+                      Center(
+                          child: CircularProgressIndicator(
+                              value: downloadProgress.progress)),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                  height: 200,
+                  width: 200,
+                )),
       ListTile(
         leading: Icon(
           Icons.circle,
@@ -125,9 +138,9 @@ class UserCard extends StatelessWidget {
         ),
         title: Text(user['name']),
         subtitle: Text(user['kerberos']),
-        trailing: Text(user['hostel']),
+        trailing: Text(user['hostel'], style: const TextStyle(fontSize: 20)),
       )
-    ]);
+    ]));
   }
 }
 
@@ -146,10 +159,12 @@ class MealCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         tileColor: (mealToken['status'] == 'USED')
             ? Colors.red.shade100
             : Colors.green.shade100,
-        leading: Text(mealToken['status']),
+        leading:
+            Text(mealToken['status'], style: const TextStyle(fontSize: 15)),
         title: Text(mealToken['meal_id']['name']),
         subtitle: Text(
             "${as1605.date(mealToken['meal_id']['start_time'])} - ${as1605.date(mealToken['meal_id']['end_time'])}"),
@@ -161,14 +176,17 @@ class MealCard extends StatelessWidget {
                   ElevatedButton(
                       onPressed: (mealToken['status'] == 'USED')
                           ? null
-                          : () {
-                              final result = api.useMealToken(mealToken['_id']);
+                          : () async {
+                              final result =
+                                  await api.useMealToken(mealToken['_id']);
                               if (result == false) {
+                                // ignore: use_build_context_synchronously
                                 as1605.popup(context,
                                     title: "DO NOT ALLOW",
                                     content: const Icon(Icons.close,
                                         color: Colors.red));
                               } else {
+                                // ignore: use_build_context_synchronously
                                 as1605.popup(context,
                                     title: "ALLOW",
                                     content: const Icon(Icons.check,

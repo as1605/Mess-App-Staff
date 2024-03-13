@@ -12,7 +12,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Home"), actions: [
+      appBar: AppBar(title: const Text("Mess App v2.0"), actions: [
         ElevatedButton(
             onPressed: () => api.logout().then((_) =>
                 as1605.navReplace(context, (_) => LaunchScreen(api: api))),
@@ -27,7 +27,9 @@ class HomeScreen extends StatelessWidget {
                 child: ElevatedButton(
                     onPressed: () =>
                         as1605.navPush(context, (_) => ScanScreen(api: api)),
-                    child: const Text('Scan'))),
+                    child: const Padding(
+                        padding: EdgeInsets.all(25),
+                        child: Text('Scan', style: TextStyle(fontSize: 40))))),
           ),
           Center(
               child: TextButton(
@@ -35,12 +37,13 @@ class HomeScreen extends StatelessWidget {
                       Uri.parse('https://github.com/as1605'),
                       mode: LaunchMode.externalApplication),
                   child: RichText(
+                      textScaler: const TextScaler.linear(1.2),
                       text: TextSpan(children: const [
-                    TextSpan(text: "Developed by Aditya Singh "),
-                    TextSpan(
-                        text: "(as1605)",
-                        style: TextStyle(fontWeight: FontWeight.bold))
-                  ], style: TextStyle(color: Colors.grey.shade500)))))
+                        TextSpan(text: "Developed by Aditya Singh "),
+                        TextSpan(
+                            text: "(as1605)",
+                            style: TextStyle(fontWeight: FontWeight.bold))
+                      ], style: TextStyle(color: Colors.grey.shade500)))))
         ],
       ),
     );
