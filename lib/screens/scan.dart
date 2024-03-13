@@ -15,26 +15,16 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
-  MobileScannerController cameraController = MobileScannerController();
+  MobileScannerController cameraController =
+      MobileScannerController(facing: CameraFacing.front);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: const Text("QR Scanner")),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => cameraController.toggleTorch(),
-          child: ValueListenableBuilder(
-            valueListenable: cameraController.torchState,
-            builder: (context, state, child) {
-              switch (state) {
-                case TorchState.off:
-                  return const Icon(Icons.flash_off, color: Colors.white);
-                case TorchState.on:
-                  return const Icon(Icons.flash_on, color: Colors.yellow);
-              }
-            },
-          ),
-        ),
+            onPressed: () => cameraController.switchCamera(),
+            child: const Icon(Icons.cameraswitch, color: Colors.white)),
         body: MobileScanner(
             allowDuplicates: false,
             controller: cameraController,
