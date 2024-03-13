@@ -16,7 +16,7 @@ class ScanScreen extends StatefulWidget {
 
 class _ScanScreenState extends State<ScanScreen> {
   MobileScannerController cameraController =
-      MobileScannerController(facing: CameraFacing.front);
+      MobileScannerController(facing: CameraFacing.back);
 
   @override
   Widget build(BuildContext context) {

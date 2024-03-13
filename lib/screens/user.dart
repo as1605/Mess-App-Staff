@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:mess_app_staff/screens/photo.dart';
 import 'package:mess_app_staff/utils/api.dart';
 import 'package:mess_app_staff/utils/as1605.dart';
+import 'package:mess_app_staff/utils/constants.dart';
 
 class UserScreen extends StatefulWidget {
   final API api;
   final String kerberos;
-  final String? token;
+  final String token;
   const UserScreen({
     super.key,
     required this.api,
     required this.kerberos,
-    this.token,
+    required this.token,
   });
 
   @override
@@ -51,7 +53,20 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("User Details")),
+        appBar: AppBar(
+          title: const Text("User Details"),
+          actions: [
+            ElevatedButton(
+                onPressed: () => as1605.navPush(
+                    context,
+                    (_) => PhotoScreen(
+                        api: widget.api,
+                        kerberos: widget.kerberos,
+                        token: widget.token)),
+                child: const Text("Edit")),
+            const SizedBox(width: 10)
+          ],
+        ),
         body: (msg == null)
             ? ListView(
                 padding: const EdgeInsets.all(15),
@@ -93,15 +108,26 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(
-        Icons.circle,
-        color: user['isActive'] == true ? Colors.green : Colors.blue,
-      ),
-      title: Text(user['name']),
-      subtitle: Text(user['kerberos']),
-      trailing: Text(user['hostel']),
-    );
+    return Column(children: [
+      user['photo'] == null
+          ? const Icon(Icons.person, size: 200)
+          : Image(
+              image: NetworkImage(
+                  "${STRINGS.serverUrl}/staff/photo/${user['photo'].split('/').last}",
+                  headers: {'Cookie': 'connect.sid=${user['cookie']}'}),
+              width: 200,
+              height: 200,
+            ),
+      ListTile(
+        leading: Icon(
+          Icons.circle,
+          color: user['isActive'] == true ? Colors.green : Colors.blue,
+        ),
+        title: Text(user['name']),
+        subtitle: Text(user['kerberos']),
+        trailing: Text(user['hostel']),
+      )
+    ]);
   }
 }
 

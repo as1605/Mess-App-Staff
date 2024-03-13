@@ -90,6 +90,17 @@ class API {
     final response = await dio
         .get("$baseUrl/staff/verifyToken?kerberos=$kerberos&token=$token");
     if (response.statusCode == 200) {
+      if (response.data.containsKey('token')) {
+        final photo = response.data['token']['user_id']['photo'];
+        if (photo is String) {
+          final img = photo.split("/").last;
+          final url = "$baseUrl/staff/photo/$img";
+          print(url);
+        }
+      }
+      final cookies = await cookieJar.loadForRequest(Uri.parse(baseUrl));
+      response.data['token']['user_id']['cookie'] = cookies[0].value;
+
       return response.data;
       /*
       {
@@ -183,6 +194,22 @@ class API {
           "enter_time": Date
         }
       */
+    } else {
+      return false;
+    }
+  }
+
+  Future<dynamic> uploadPhoto(String kerberos, String file) async {
+    final response = await dio.post('$baseUrl/staff/uploadPhoto',
+        data: FormData.fromMap({
+          'kerberos': kerberos,
+          'file':
+              await MultipartFile.fromFile(file, filename: file.split("/").last)
+        }));
+    print("REEEEEEEEEEE");
+    print(response.toString());
+    if (response.statusCode == 201) {
+      return true;
     } else {
       return false;
     }
